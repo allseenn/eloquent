@@ -31,8 +31,30 @@ function journalEvents(journal) {
   return events;
 }
 
-for (let event of journalEvents(JOURNAL)) {
-  console.log(event + ":", phi(tableFor(event, JOURNAL)));
+let events = journalEvents(JOURNAL);
+let max = -1;
+let min = 1;
+let maxEvent;
+let minEvent;
+let current;
+for (let event of events) {
+    current = phi(tableFor(event, JOURNAL));
+    if(current > max){
+        maxEvent = event;
+        max = current;
+    }
+    else if(current < min){
+        minEvent = event;
+        min = current;
+    }
 }
 
-console.log(phi(tableFor("peanut teeth", JOURNAL)));
+console.log(`${maxEvent}: ${phi(tableFor(maxEvent, JOURNAL))} + ${minEvent}: ${phi(tableFor(minEvent, JOURNAL))}`);
+
+for(let entry of JOURNAL){
+    if (entry.events.includes(maxEvent) && !entry.events.includes(minEvent)){
+        entry.events.push(`${maxEvent} ${minEvent}`);
+    }
+}
+
+console.log(phi(tableFor(`${maxEvent} ${minEvent}`, JOURNAL)));
