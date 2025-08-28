@@ -32,7 +32,6 @@ class VillageState {
     this.place = place; // положение робота
     this.parcels = parcels; // коллекция недоставленных посылок
   }
-
   move(destination) { // метод перемещения принимает положение робота
     if (!roadGraph[this.place].includes(destination)) { // если текущее положение робота не имеет точки назначения, то
       return this; // вернуть текущее состояние деревни целиком
@@ -82,3 +81,13 @@ function findRoute(graph, from, to) {
     }
   }
 }
+
+console.log(roadGraph);
+
+const PARCELS = [
+  { place: "Daria's House", address: "Post Office" },
+  { place: "Bob's House", address: "Ernie's House" },
+  { place: "Post Office", address: "Alice's House" },
+  { place: "Ernie's House", address: "Farm" },
+  { place: "Alice's House", address: "Shop" },
+]
