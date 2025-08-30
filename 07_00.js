@@ -32,15 +32,28 @@ class VillageState {
     this.place = place; // положение робота
     this.parcels = parcels; // коллекция недоставленных посылок
   }
+  random(parcelCount = 5) {
+  let parcels = [];
+  for (let i = 0; i < parcelCount; i++) {
+    let address = Object.keys(roadGraph)[Math.floor(Math.random() * Object.keys(roadGraph).length)];
+    let place;
+    do {
+      place = Object.keys(roadGraph)[Math.floor(Math.random() * Object.keys(roadGraph).length)];
+    } while (place == address);
+    parcels.push({place, address});
+  }
+  console.log(parcels);
+  return new VillageState("Post Office", parcels);
+}
   move(destination) { // метод перемещения принимает положение робота
     if (!roadGraph[this.place].includes(destination)) { // если текущее положение робота не имеет точки назначения, то
       return this; // вернуть текущее состояние деревни целиком
     } else {
-      let parcels = this.parcels.map(p => { // новый массив посылок, который мы вернем в новое состояине деревни, 
-                // размапим текущий массив посылок, где рассматриваемае посылка это p
+      let parcels = this.parcels.map(p => { // новый массив посылок, который мы вернем в новое состояние деревни, 
+                // размапим текущий массив посылок, где рассматриваемая посылка это p
         if (p.place != this.place) return p; // если рассматриваемая посылка не равна текущему положению робота то вернем ее неизменной
         return {place: destination, address: p.address}; // иначе, мы меняем текущее место посылки на переданное в метод move(dest)
-      }).filter(p => p.place != p.address); // удаляем доставленные посылки, т.е. отсавляем тольк те чье положение не равно назначению 
+      }).filter(p => p.place != p.address); // удаляем доставленные посылки, т.е. оставляем только те, чье положение не равно назначению 
       return new VillageState(destination, parcels); // возвращаем новое состояние деревни, где положение робота меняется на назначение
 // из прошлого состояние и измененную коллекцию посылок
     }
@@ -69,6 +82,17 @@ function runRobot(state, robot, memory) {
   }
 }
 
+function randomPick(array) {
+  let choice = Math.floor(Math.random() * array.length);
+  return array[choice];
+}
+
+function randomRobot(state) {
+  return {direction: randomPick(roadGraph[state.place])};
+}
+
+runRobot(first.random(15), randomRobot);
+
 function findRoute(graph, from, to) {
   let work = [{at: from, route: []}];
   for (let i = 0; i < work.length; i++) {
@@ -81,13 +105,3 @@ function findRoute(graph, from, to) {
     }
   }
 }
-
-console.log(roadGraph);
-
-const PARCELS = [
-  { place: "Daria's House", address: "Post Office" },
-  { place: "Bob's House", address: "Ernie's House" },
-  { place: "Post Office", address: "Alice's House" },
-  { place: "Ernie's House", address: "Farm" },
-  { place: "Alice's House", address: "Shop" },
-]
