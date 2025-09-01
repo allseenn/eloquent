@@ -81,6 +81,7 @@ function runRobot(state, robot, memory) {
     console.log(`Moved to ${action.direction}`);
   }
 }
+console.log(roadGraph)
 
 function randomPick(array) {
   let choice = Math.floor(Math.random() * array.length);
