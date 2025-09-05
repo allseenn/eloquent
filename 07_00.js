@@ -18,7 +18,7 @@ function buildGraph(edges) { // построитьГраф(маршруты)
       graph[from] = [to]; // создать массив с одним элементом со значением "в"  в поле объекта со значением "из" 
     }
   }
-  for (let [from, to] of edges.map(r => r.split("-"))) { // промежаться по картежу (из, в) разделенных по "-" в объекте маршруты   
+  for (let [from, to] of edges.map(r => r.split("-"))) { // пробежаться по картежу (из, в) разделенных по "-" в объекте маршруты   
     addEdge(from, to); // добавить с помощью функции построитьГраф точки из-в
     addEdge(to, from); // добавить с помощью функции построитьГраф точки в-из
   }
@@ -42,7 +42,6 @@ class VillageState {
     } while (place == address);
     parcels.push({place, address});
   }
-  console.log(parcels);
   return new VillageState("Post Office", parcels);
 }
   move(destination) { // метод перемещения принимает положение робота
