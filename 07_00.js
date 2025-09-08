@@ -8,6 +8,14 @@ const roads = [
   "Marketplace-Post Office",     "Marketplace-Shop",
   "Marketplace-Town Hall",       "Shop-Town Hall"
 ];
+
+const mailRoute = [
+  "Alice's House", "Cabin", "Alice's House", "Bob's House",
+  "Town Hall", "Daria's House", "Ernie's House",
+  "Grete's House", "Shop", "Grete's House", "Farm",
+  "Marketplace", "Post Office"
+];
+
 // функция построения графа: один адрес ко многим разрешенным адресатам
 function buildGraph(edges) { // построитьГраф(маршруты)
   let graph = Object.create(null); // объект граф = чистый объект
@@ -32,7 +40,7 @@ class VillageState {
     this.place = place; // положение робота
     this.parcels = parcels; // коллекция недоставленных посылок
   }
-  random(parcelCount = 5) {
+  static random(parcelCount = 5) {
   let parcels = [];
   for (let i = 0; i < parcelCount; i++) {
     let address = Object.keys(roadGraph)[Math.floor(Math.random() * Object.keys(roadGraph).length)];
@@ -77,10 +85,11 @@ function runRobot(state, robot, memory) {
     let action = robot(state, memory);
     state = state.move(action.direction);
     memory = action.memory;
-    console.log(`Moved to ${action.direction}`);
+    console.log(`${turn} Moved to ${action.direction}`);
   }
 }
-console.log(roadGraph)
+
+// console.log(roadGraph)
 
 function randomPick(array) {
   let choice = Math.floor(Math.random() * array.length);
@@ -91,7 +100,17 @@ function randomRobot(state) {
   return {direction: randomPick(roadGraph[state.place])};
 }
 
-runRobot(first.random(15), randomRobot);
+// runRobot(VillageState.random(), randomRobot);
+
+function routeRobot(state, memory) {
+  if (memory.length == 0) {
+    memory = mailRoute;
+  }
+  console.log(state.parcels);
+  return {direction: memory[0], memory: memory.slice(1)};
+}
+
+runRobot(VillageState.random(15), routeRobot, mailRoute);
 
 function findRoute(graph, from, to) {
   let work = [{at: from, route: []}];

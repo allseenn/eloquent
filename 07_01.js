@@ -41,27 +41,25 @@ class VillageState {
     this.remainingParcels = parcels
   }
   static random(amount = 5){
-    const parcels = [];
+    const randParcels = [];
     const places = Object.keys(roadGraph);
     for (let i = 0; i < amount; i++) {
       let place = places[Math.floor(Math.random()*places.length)];
       let address = places[Math.floor(Math.random()*places.length)];
-      if(place!=address) parcels.push({place, address})
+      if(place!=address) randParcels.push({place, address})
       else i--;
     }
-    console.log();
-    return new VillageState(places[Math.floor(Math.random()*places.length)], parcels)
+    //places[Math.floor(Math.random()*places.length)]
+    return new VillageState("Post Office", randParcels)
   }
   move(destination){
     if(roadGraph[this.currentRobotPlace].includes(destination)){
-      this.remainingParcels = this.remainingParcels.map(parcel => {
+      let parcels = this.remainingParcels.map(parcel => {
         if(parcel.place == this.currentRobotPlace) return {place: destination, address: parcel.address};
         return parcel;
       }).filter(parcel => parcel.place != parcel.address);
-      this.currentRobotPlace = destination;
+      return new VillageState(destination, parcels);
     } else return this;
-    console.log(this);
-    return new VillageState(destination, this.remainingParcels)
   }
 }
 
@@ -90,8 +88,6 @@ function generateParcels(amount = 5){
   return parcels
 }
 
-
-
 function randomRobot(state){
   places = roadGraph[state.currentRobotPlace]
   let direction = places[Math.floor(Math.random()*places.length)]
@@ -109,21 +105,25 @@ function runRobot0(){
 
 function routeRobot(state, memory){
   if (memory.length == 0) {
-    memory = memory;
+    memory = mailRoute;
   }
-  return {direction: memory[0], memory: memory.splice(1)};
+  console.log(state.remainingParcels);
+  return {direction: memory[0], memory: memory.slice(1)};
 }
 
 function runRobot(state, robot, memory){
   let count = 0;
   while(state.remainingParcels.length){
     let action = robot(state, memory)
+    if (action.direction == undefined){
+      console.log("No route found");
+      return undefined;
+    } 
     state = state.move(action.direction);
     memory = action.memory
     count++;
     console.log(`${count} Moved to ${action.direction}`);
   }
-  return count;
 }
 
 const mailRoute = [
@@ -131,12 +131,12 @@ const mailRoute = [
   "Town Hall", "Daria's House", "Ernie's House",
   "Grete's House", "Shop", "Grete's House", "Farm",
   "Marketplace", "Post Office"
-]
+];
 
 //const first = new VillageState("Post Office", PARCELS)
 //runRobot(first, routeRobot, mailRoute)
 //runRobot(VillageState.random(), randomRobot)
-runRobot(VillageState.random(), routeRobot, mailRoute)
+runRobot(VillageState.random(5), routeRobot, mailRoute)
 
 
 
