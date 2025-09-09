@@ -110,7 +110,7 @@ function routeRobot(state, memory) {
   return {direction: memory[0], memory: memory.slice(1)};
 }
 
-runRobot(VillageState.random(15), routeRobot, mailRoute);
+//runRobot(VillageState.random(15), routeRobot, mailRoute);
 
 function findRoute(graph, from, to) {
   let work = [{at: from, route: []}];
@@ -123,4 +123,18 @@ function findRoute(graph, from, to) {
       }
     }
   }
+}
+
+console.log(findRoute(roadGraph, "Cabin", "Grete's House"));
+
+function goalOrientedRobot({place, parcels}, route) {
+  if (route.length == 0) {
+    let parcel = parcels[0];
+    if (parcel.place != place) {
+      route = findRoute(roadGraph, place, parcel.place);
+    } else {
+      route = findRoute(roadGraph, place, parcel.address);
+    }
+  }
+  return {direction: route[0], memory: route.slice(1)};
 }

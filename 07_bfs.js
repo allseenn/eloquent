@@ -35,27 +35,27 @@ const bfs = (graph, start) => {
     const distances = {};
     const parents = {};
 
-    // Инициализируем для всех узлов
+    // Для каждого узла графа выставляем начальные (пустые) значения во всех ключевых объектах
     for (let node in graph) {
-        visited[node] = false;
-        distances[node] = -1;
-        parents[node] = null;
+        visited[node] = false; // вершина еще не посещена
+        distances[node] = -1; // расстояние не известно
+        parents[node] = null; // родителей еще нет
     }
-
-    queue.push(start);
-    visited[start] = true;
-    distances[start] = 0;
-
-    while (queue.length > 0) {
-        const current_node = queue.shift();
-        const neighbors = graph[current_node];
-
+    // Инициализация очереди
+    queue.push(start); // добавляем в очередь старторвый узел
+    visited[start] = true; // помечаем данный узел посещенным
+    distances[start] = 0; // выставляем нулевое расстояние, т.к. текущей узел у нас в месте старта
+    // цикл прохода по очереди
+    while (queue.length > 0) { 
+        const current_node = queue.shift(); // удаляем давно стоящий узел из очереди и кладем его в текущий узел 
+        const neighbors = graph[current_node]; // получаем всех соседей текущего узла
+        // обходим всех соседей текущего узла
         for (const neighbor of neighbors) {
-            if (!visited[neighbor]) {
-                queue.push(neighbor);
-                visited[neighbor] = true;
-                distances[neighbor] = distances[current_node] + 1;
-                parents[neighbor] = current_node;
+            if (!visited[neighbor]) { // при условии что соседа еще не посещали
+                queue.push(neighbor); // помещаем текущего соседа в очередь
+                visited[neighbor] = true; // помечаем соседа посещенным
+                distances[neighbor] = distances[current_node] + 1; // увеличиваем расстояние соседа на 1
+                parents[neighbor] = current_node; // устанавливаем текущему соседу родителем текущей узел
             }
         }
     }
@@ -68,7 +68,7 @@ const bfs = (graph, start) => {
 }
 
 // Используем существующий узёл графа в качестве стартового
-result = bfs(graph, "Alice's House");
+result = bfs(graph, "Cabin");
 
 
 function reconstructPath(parents, target) {
