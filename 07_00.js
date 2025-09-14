@@ -69,11 +69,11 @@ class VillageState {
 // Первое состояние деревни (Положение робота, [Коллекция посылок {положение посылки, местоназначения}])
 let first = new VillageState("Post Office", [{place: "Post Office", address: "Alice's House"}]);
 let next = first.move("Alice's House"); // Второе состояние = Перемещение робота к дому Алисы
-console.log(next.place); // Второе.положение робота у дома Алисы
+//console.log(next.place); // Второе.положение робота у дома Алисы
 // → Alice's House
-console.log(next.parcels); // Коллекция недоставленных посылок на втором шаге
+//console.log(next.parcels); // Коллекция недоставленных посылок на втором шаге
 // → []
-console.log(first.place); // Первое.положение робота у Почты
+//console.log(first.place); // Первое.положение робота у Почты
 // → Post Office
 
 function runRobot(state, robot, memory) {
@@ -106,12 +106,10 @@ function routeRobot(state, memory) {
   if (memory.length == 0) {
     memory = mailRoute;
   }
-  console.log(state.parcels);
+  //console.log(state.parcels);
   return {direction: memory[0], memory: memory.slice(1)};
 }
-
 //runRobot(VillageState.random(15), routeRobot, mailRoute);
-
 function findRoute(graph, from, to) {
   let work = [{at: from, route: []}];
   for (let i = 0; i < work.length; i++) {
@@ -124,17 +122,126 @@ function findRoute(graph, from, to) {
     }
   }
 }
-
-console.log(findRoute(roadGraph, "Cabin", "Grete's House"));
-
-function goalOrientedRobot({place, parcels}, route) {
-  if (route.length == 0) {
-    let parcel = parcels[0];
-    if (parcel.place != place) {
-      route = findRoute(roadGraph, place, parcel.place);
+//console.log(findRoute(roadGraph, "Cabin", "Grete's House"));
+// умный робот (состояние, память)
+function goalOrientedRobot({place, parcels}, route) { // состояние деструктурируется в place и parcels, маршрут пустой массив
+  if (route.length == 0) { // если маршрут пустой список, 
+    let parcel = parcels[0]; // то берем первую посылку из списка
+    if (parcel.place != place) { // если положение посылки не равно положению робота
+      route = findRoute(roadGraph, place, parcel.place); // то находим маршрут от робота до места посылки
     } else {
-      route = findRoute(roadGraph, place, parcel.address);
+      route = findRoute(roadGraph, place, parcel.address); // иначе находим маршрут от робота до места назначения
     }
+  } // и возвращаем направление и память, где направление - первый элемент маршрута, 
+  return {direction: route[0], memory: route.slice(1)}; // а память - маршрут без первого элемента
+}
+
+//runRobot(VillageState.random(), goalOrientedRobot, []);
+// Task 1
+function countSteps(state, robot, memory) {
+  for (let turn = 0;; turn++) {
+    if (state.parcels.length == 0) return turn;
+    let action = robot(state, memory);
+    state = state.move(action.direction);
+    memory = action.memory;
+  }
+}
+
+function compareRobot(robot1, memory1, robot2, memory2){
+  let sum1 = 0; 
+  let sum2 = 0;
+  const tasks = 10;
+  for(let i=0; i < tasks; i++){
+      const state = VillageState.random();
+      sum1 += countSteps(state, robot1, memory1);
+      sum2 += countSteps(state, robot2, memory2);
+  }
+  console.log(`Average moves: robot1 ${sum1/100} robot2 ${sum2/100}`)
+}
+
+//compareRobot(randomRobot, [], routeRobot, [])
+//compareRobot(routeRobot, [], goalOrientedRobot, [])
+
+// Task 2
+function myRobot({place, parcels}, route) { // состояние деструктурируется в place и parcels, маршрут пустой массив
+  if (route.length == 0) { // если маршрут пустой список, 
+    let parcel; // то берем первую посылку из списка
+    let shortestLength = Infinity;
+    for(let i=0; i < parcels.length; i++){
+      let currentLength = findRoute(roadGraph, place, parcels[i].place).length;
+      if(currentLength < shortestLength){
+        shortestLength = currentLength;
+        parcel = parcels[i];
+      }
+    }
+    // идем к посылке или к адресату?
+    if (parcel.place != place) { // если положение посылки не равно положению робота
+      route = findRoute(roadGraph, place, parcel.place); // то находим маршрут от робота до места посылки
+    } else {
+      route = findRoute(roadGraph, place, parcel.address); // иначе находим маршрут от робота до места назначения
+    }
+  } // и возвращаем направление и память, где направление - первый элемент маршрута, 
+  return {direction: route[0], memory: route.slice(1)}; // а память - маршрут без первого элемента
+}
+
+function yourRobot({place, parcels}, route) {
+  if (route.length == 0) {
+    let route2Parcel;
+    let route2Address;
+    let route1; 
+    let route2;
+    let shortest2Parcel = Infinity;
+    let shortest2Address = Infinity;
+    
+    // Находим ближайшую посылку
+    for(let i = 0; i < parcels.length; i++) {
+      route2Parcel = findRoute(roadGraph, place, parcels[i].place);
+      route2Address = findRoute(roadGraph, place, parcels[i].address);
+      if (parcels[i].place != place){
+        if(route2Parcel.length < shortest2Parcel) {
+          shortest2Parcel = route2Parcel.length;
+          parcel = parcels[i];
+          route = route2Parcel;
+        }
+      }
+      else {
+        if(route2Address.length < shortest2Address) {
+          shortest2Address = route2Address.length;
+          parcel = parcels[i];
+          route = route2Address;
+        }
+      }
+    }
+    if(route1 < route2 && route1 != 0) route = route1;
+    else if (route2 < route2 && route2 != 0) route = route2;
   }
   return {direction: route[0], memory: route.slice(1)};
 }
+
+
+function lazyRobot({place, parcels}, route) {
+  if (route.length == 0) {
+    // Describe a route for every parcel
+    let routes = parcels.map(parcel => {
+      if (parcel.place != place) {
+        return {route: findRoute(roadGraph, place, parcel.place),
+                pickUp: true};
+      } else {
+        return {route: findRoute(roadGraph, place, parcel.address),
+                pickUp: false};
+      }
+    });
+
+    // This determines the precedence a route gets when choosing.
+    // Route length counts negatively, routes that pick up a package
+    // get a small bonus.
+    function score({route, pickUp}) {
+      return (pickUp ? 0.5 : 0) - route.length;
+    }
+    route = routes.reduce((a, b) => score(a) > score(b) ? a : b).route;
+  }
+
+  return {direction: route[0], memory: route.slice(1)};
+}
+
+compareRobot(yourRobot, [], myRobot, [])
