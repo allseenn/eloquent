@@ -1,7 +1,7 @@
 # Node modules
 node_modules/
-
-# Logs
+npm-debug.log
+yarn-error.log# Logs
 logs/
 *.log
 npm-debug.log*
