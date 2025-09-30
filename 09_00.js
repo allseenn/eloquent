@@ -15,17 +15,17 @@ type=evil wizard
 outputdir=/home/marijn/enemies/davaeorn
 `
 
-function convert(text){
+function convert(text) {
     let result = {}
     let section = {}
     let slaveName = ""
-    for(let line of text.replace(/;.*\n/gm, "").split(/\r?\n/).filter(arr => arr != "")){
+    for (let line of text.replace(/;.*\n/gm, "").split(/\r?\n/).filter(arr => arr != "")) {
         if (/^\[/.test(line)) {
             section = {}
             slaveName = line.replace(/\[|\]/g, "")
             result[slaveName] = {}
         }
-        else if (slaveName){
+        else if (slaveName) {
             let [key, val] = line.split("=");
             result[slaveName][key] = val;
         }
@@ -34,7 +34,7 @@ function convert(text){
             result[key] = val
         }
     }
-    return result  
+    return result
 }
 
 console.log(convert(text))
